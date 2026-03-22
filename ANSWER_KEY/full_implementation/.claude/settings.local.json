@@ -1,8 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "mcp__literature-review__query_local_library",
-      "mcp__literature-review__search_papers"
-    ]
-  }
-}
