@@ -26,6 +26,9 @@ Note: it is possible the root "workshop" folder might be called something differ
 ## Setup commands (run in order)
 
 ```bash
+python -m venv venv
+source venv/bin/activate        # macOS/Linux/Git Bash
+# .\venv\Scripts\Activate.ps1  # Windows PowerShell
 pip install -r requirements.txt
 python download_papers.py
 python src/pdf_ingestor.py

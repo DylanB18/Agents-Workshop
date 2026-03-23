@@ -20,15 +20,43 @@ Your goals:
 
 ---
 
+## Prerequisites
+
+- **Python 3.10 or later** — check with `python --version`
+- **Claude Code** — installed and authenticated ([installation guide](https://docs.anthropic.com/en/docs/claude-code/overview))
+
 ## Setup
 
-### 1. Install dependencies
+### 1. Create and activate a virtual environment
+
+**macOS / Linux:**
+```bash
+python -m venv venv
+source venv/bin/activate
+```
+
+**Windows (Git Bash):**
+```bash
+python -m venv venv
+source venv/Scripts/activate
+```
+
+**Windows (PowerShell):**
+```powershell
+python -m venv venv
+.\venv\Scripts\Activate.ps1
+```
+
+> **Note:** Always activate the virtual environment before running any commands
+> in this project. If you open a new terminal, re-run the `activate` command.
+
+### 2. Install dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 2. Download the PDF corpus
+### 3. Download the PDF corpus
 
 ```bash
 python download_papers.py
@@ -41,7 +69,7 @@ python download_papers.py
 
 This downloads ~20 arXiv papers into `pdfs/`. Re-run it if any downloads fail.
 
-### 3. Build the vector database
+### 4. Build the vector database
 
 ```bash
 python src/pdf_ingestor.py
@@ -50,7 +78,7 @@ python src/pdf_ingestor.py
 This reads all PDFs, chunks the text, computes embeddings, and stores them
 in `chroma_db/`. You will re-run this whenever you change RAG parameters.
 
-### 4. Register the MCP server with Claude Code
+### 5. Register the MCP server with Claude Code
 
 From a terminal, run:
 
@@ -58,34 +86,32 @@ From a terminal, run:
 claude mcp add literature-review -- python src/mcp_server.py
 ```
 
-Verify it appears in your server list:
+> **VSCode users:** If you are using Claude Code inside VSCode (not the CLI),
+> the `.mcp.json` file included in this repo will configure the server
+> automatically. You can skip the `claude mcp add` command.
 
-```bash
-claude mcp list
-```
+### 6. Verify the MCP server is working
 
-> **VSCode users:** If the `claude` CLI is not available, create a `.mcp.json` file
-> in the project root instead:
-> ```json
-> {
->   "mcpServers": {
->     "literature-review": {
->       "command": "python",
->       "args": ["src/mcp_server.py"],
->       "cwd": "."
->     }
->   }
-> }
-> ```
-
-### 5. Start a Claude Code session
+Start a Claude Code session:
 
 ```bash
 claude
 ```
 
-You are now ready. The agent has access to four tools: `search_papers`,
-`get_paper_details`, `query_local_library`, and `get_citations`.
+Then ask Claude:
+
+> "List the tools you have access to."
+
+You should see four tools: `search_papers`, `get_paper_details`,
+`query_local_library`, and `get_citations`. If Claude does not list these
+tools, double-check that you ran `claude mcp add` from the project directory
+and that your virtual environment is activated.
+
+As an additional check, try:
+
+> "Search Semantic Scholar for 'retrieval augmented generation'."
+
+If the tool call works and returns paper results, your setup is complete.
 
 ---
 
