@@ -21,6 +21,8 @@ workshop/
 └── chroma_db/               # ChromaDB vector store (created by pdf_ingestor.py)
 ```
 
+Note: it is possible the root "workshop" folder might be called something different if it was renamed. The files structure should otherwise be the same.
+
 ## Setup commands (run in order)
 
 ```bash

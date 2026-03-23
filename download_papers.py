@@ -15,7 +15,7 @@ import sys
 import httpx
 
 # ---------------------------------------------------------------------------
-# Curated paper list — arXiv IDs and descriptive filenames
+# Paper list
 # ---------------------------------------------------------------------------
 
 PAPERS = [
