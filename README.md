@@ -62,11 +62,6 @@ pip install -r requirements.txt
 python download_papers.py
 ```
 
-> **Windows users:** If you get a `UnicodeEncodeError`, run with:
-> ```bash
-> PYTHONIOENCODING=utf-8 python download_papers.py
-> ```
-
 This downloads ~20 arXiv papers into `pdfs/`. Re-run it if any downloads fail.
 
 ### 4. Build the vector database

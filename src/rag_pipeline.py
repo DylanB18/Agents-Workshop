@@ -23,7 +23,7 @@ def load_config(config_path: str = "config.yaml") -> dict:
     if not config_path.exists():
         # Try relative to this file's parent
         config_path = pathlib.Path(__file__).parent.parent / "config.yaml"
-    with open(config_path) as f:
+    with open(config_path, encoding='utf-8') as f:
         return yaml.safe_load(f)
 
 
