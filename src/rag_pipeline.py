@@ -85,7 +85,7 @@ class RAGPipeline:
         Example:
             chunk_text("abcdefghij", chunk_size=4, chunk_overlap=1)
             # step = 4 - 1 = 3
-            # → ["abcd", "defg", "ghij", "j"]
+            # → ["abcd", "defg", "ghij"]
             # (position 9 still has content, so the trailing stub is included)
         """
         # TODO: implement this function
