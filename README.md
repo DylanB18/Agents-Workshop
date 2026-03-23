@@ -25,7 +25,6 @@ Your goals:
 ### 1. Install dependencies
 
 ```bash
-cd workshop/
 pip install -r requirements.txt
 ```
 
@@ -34,6 +33,11 @@ pip install -r requirements.txt
 ```bash
 python download_papers.py
 ```
+
+> **Windows users:** If you get a `UnicodeEncodeError`, run with:
+> ```bash
+> PYTHONIOENCODING=utf-8 python download_papers.py
+> ```
 
 This downloads ~20 arXiv papers into `pdfs/`. Re-run it if any downloads fail.
 
@@ -48,6 +52,8 @@ in `chroma_db/`. You will re-run this whenever you change RAG parameters.
 
 ### 4. Register the MCP server with Claude Code
 
+From a terminal, run:
+
 ```bash
 claude mcp add literature-review -- python src/mcp_server.py
 ```
@@ -57,6 +63,20 @@ Verify it appears in your server list:
 ```bash
 claude mcp list
 ```
+
+> **VSCode users:** If the `claude` CLI is not available, create a `.mcp.json` file
+> in the project root instead:
+> ```json
+> {
+>   "mcpServers": {
+>     "literature-review": {
+>       "command": "python",
+>       "args": ["src/mcp_server.py"],
+>       "cwd": "."
+>     }
+>   }
+> }
+> ```
 
 ### 5. Start a Claude Code session
 
