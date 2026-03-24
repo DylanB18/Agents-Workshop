@@ -84,6 +84,13 @@ claude mcp add literature-review -- python src/mcp_server.py
 > **VSCode users:** If you are using Claude Code inside VSCode (not the CLI),
 > the `.mcp.json` file included in this repo will configure the server
 > automatically. You can skip the `claude mcp add` command.
+>
+> **Important:** The `.mcp.json` uses `"command": "python"`, which must resolve
+> to the virtual environment's Python (i.e., the venv must be activated). If the
+> MCP server fails to start, replace `"python"` in `.mcp.json` with the full
+> path to your venv Python — for example:
+> - **macOS/Linux:** `"command": "./agents-workshop/bin/python"`
+> - **Windows:** `"command": "./agents-workshop/Scripts/python.exe"`
 
 ### 6. Verify the MCP server is working
 
