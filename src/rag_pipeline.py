@@ -88,16 +88,9 @@ class RAGPipeline:
             # → ["abcd", "defg", "ghij"]
             # (position 9 still has content, so the trailing stub is included)
         """
-        if not text:
-            return []
-
-        chunks = []
-        step = chunk_size - chunk_overlap
-        start = 0
-        while start < len(text):
-            chunks.append(text[start:start + chunk_size])
-            start += step
-        return chunks
+        # TODO: implement this function
+        # Remove the line below and write your implementation.
+        raise NotImplementedError("Implement chunk_text() — see docstring above")
 
     # -----------------------------------------------------------------------
     # TODO 2 of 2 — implement retrieve()
@@ -136,35 +129,9 @@ class RAGPipeline:
         Returns:
             List of result dicts (may be empty if nothing passes the threshold).
         """
-        # 1. Encode the query
-        query_embedding = self.model.encode(query).tolist()
-
-        # 2. Query ChromaDB
-        results = self.collection.query(
-            query_embeddings=[query_embedding],
-            n_results=self.top_k,
-            include=["documents", "metadatas", "distances"],
-        )
-
-        # 3-5. Convert distances to similarities, filter, and format
-        output = []
-        for doc, meta, dist in zip(
-            results["documents"][0],
-            results["metadatas"][0],
-            results["distances"][0],
-        ):
-            similarity = 1 / (1 + dist)
-            if similarity >= self.similarity_threshold:
-                output.append({
-                    "text": doc,
-                    "source": meta["source"],
-                    "chunk_index": meta["chunk_index"],
-                    "similarity": round(similarity, 4),
-                })
-
-        # Sort by similarity descending
-        output.sort(key=lambda x: x["similarity"], reverse=True)
-        return output
+        # TODO: implement this function
+        # Remove the line below and write your implementation.
+        raise NotImplementedError("Implement retrieve() — see docstring above")
 
 
 # ---------------------------------------------------------------------------
