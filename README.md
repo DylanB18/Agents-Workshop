@@ -23,7 +23,7 @@ Your goals:
 ## Prerequisites
 
 - **Python 3.10 or later** — check with `python --version`
-- **Claude Code** — installed and authenticated ([installation guide](https://docs.anthropic.com/en/docs/claude-code/overview))
+- **Claude Code** — installed and authenticated ([installation guide](https://docs.anthropic.com/en/docs/claude-code/overview)). The CLI is recommended for ease of use.
 
 ## Setup
 
@@ -35,20 +35,19 @@ python -m venv agents-workshop
 source agents-workshop/bin/activate
 ```
 
-**Windows (Git Bash):**
-```bash
-python -m venv agents-workshop
-source agents-workshop/Scripts/activate
-```
-
 **Windows (PowerShell):**
 ```powershell
 python -m venv agents-workshop
 .\agents-workshop\Scripts\Activate.ps1
 ```
 
-> **Note:** Always activate the virtual environment before running any commands
-> in this project. If you open a new terminal, re-run the `activate` command.
+**Windows (Git Bash):**
+```bash
+python -m venv agents-workshop
+source agents-workshop/Scripts/activate
+```
+
+> **Note:** Always activate the virtual environment before running any commands in this project. If you open a new terminal, re-run the `activate` command.
 
 ### 2. Install dependencies
 
@@ -188,14 +187,6 @@ top_k: 8
 similarity_threshold: 0.2
 ```
 
-**Configuration C — Large chunks, low retrieval count**
-```yaml
-chunk_size: 1024
-chunk_overlap: 64
-top_k: 3
-similarity_threshold: 0.4
-```
-
 > **Important:** After changing any RAG parameter, re-run ingestion before
 > testing:
 > ```bash
@@ -204,11 +195,21 @@ similarity_threshold: 0.4
 > Then restart Claude Code (or run `claude mcp restart literature-review`) to
 > reload the server.
 
-In your writeup, compare the three outputs. Consider:
-- Did all configurations retrieve the same papers/chunks?
+In your writeup, compare the two outputs. Consider:
+- Did both configurations retrieve the same papers/chunks?
 - Which produced more precise quotes vs. broader context?
-- Did any configuration fail to retrieve relevant information?
+- Did either configuration fail to retrieve relevant information?
 - What did a high vs. low `similarity_threshold` exclude?
+
+**Extra credit — Configuration C: Large chunks, low retrieval count**
+```yaml
+chunk_size: 1024
+chunk_overlap: 64
+top_k: 3
+similarity_threshold: 0.4
+```
+
+Run the same query with this configuration and include it in your comparison.
 
 ---
 
@@ -229,13 +230,19 @@ the same request.
 **Step 3:** Set `agent.system_prompt: "structured"` and implement the
 `STRUCTURED_PROMPT` stub. Restart and run the same request again.
 
+**Extra credit:** Implement `CRITICAL_PROMPT` in `templates.py` — a prompt that
+instructs the agent to critically evaluate papers rather than just summarize them
+(flag weak evaluations, limited baselines, or overclaimed results). Test it with
+the same request and include a reflection on whether RAG-based critique is
+realistic.
+
 > **Restart reminder:** After changing `config.yaml` or `templates.py`, the
 > server must be restarted for changes to take effect:
 > ```bash
 > claude mcp restart literature-review
 > ```
 
-In your writeup, compare the three outputs. Consider:
+In your writeup, compare the outputs. Consider:
 - How did the prompt change the structure of the review?
 - Did the prompt affect which tools the agent called, or in what order?
 - Which prompt produced the most useful output, and why?
@@ -277,6 +284,7 @@ nine questions concisely:
 - [ ] `src/rag_pipeline.py` — both TODOs implemented
 - [ ] `config.yaml` — shows your final (best) configuration
 - [ ] `prompts/templates.py` — `CONCISE_PROMPT` and `STRUCTURED_PROMPT` implemented
+- [ ] (extra credit) `CRITICAL_PROMPT` implemented and tested
 - [ ] `writeup.md` — all three reflection sections completed
 - [ ] ZIP archive submitted to Canvas
 
@@ -302,15 +310,3 @@ many searches in rapid succession.
 **PDF download failed for one paper**
 → Re-run `python download_papers.py`. It skips already-downloaded files.
 
----
-
-## Grading Rubric
-
-| Component | Points |
-|---|---|
-| `chunk_text()` correctly implemented | 15 |
-| `retrieve()` correctly implemented (embedding, filtering, formatting) | 20 |
-| RAG comparison: 3 configs tested, outputs documented | 20 |
-| System prompt comparison: 2+ prompts written and tested | 20 |
-| Writeup quality: specific observations, not generic | 25 |
-| **Total** | **100** |

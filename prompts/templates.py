@@ -76,9 +76,9 @@ Replace this entire string with your prompt.
 """
 
 CRITICAL_PROMPT = """
-TODO (Part 3c — optional challenge): Write a system prompt that instructs the
-agent to critically evaluate papers rather than just summarize them. It should
-flag weak evaluations, limited baselines, or overclaimed results.
+TODO (Extra credit): Write a system prompt that instructs the agent to
+critically evaluate papers rather than just summarize them. It should flag
+weak evaluations, limited baselines, or overclaimed results.
 
 Consider: Is it realistic for an agent to critically evaluate papers without
 reading full PDFs? What are the limits of RAG-based critique?
