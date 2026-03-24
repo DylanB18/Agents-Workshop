@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "literature-review": {
+      "command": "python",
+      "args": ["src/mcp_server.py"],
+      "cwd": "."
+    }
+  }
+}
