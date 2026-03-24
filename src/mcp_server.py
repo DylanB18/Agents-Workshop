@@ -18,6 +18,7 @@ import logging
 import pathlib
 import sys
 import yaml
+import httpx
 from mcp.server.fastmcp import FastMCP
 
 # Suppress verbose HuggingFace/sentence-transformers download logs
@@ -101,13 +102,21 @@ def search_papers(
 
     fos = [f.strip() for f in fields_of_study.split(",") if f.strip()] or None
 
-    papers = _ss_client.search_papers(
-        query=query,
-        limit=limit,
-        year=year or None,
-        fields_of_study=fos,
-        include_abstracts=agent_cfg["include_abstracts"],
-    )
+    try:
+        papers = _ss_client.search_papers(
+            query=query,
+            limit=limit,
+            year=year or None,
+            fields_of_study=fos,
+            include_abstracts=agent_cfg["include_abstracts"],
+        )
+    except httpx.HTTPStatusError as e:
+        if e.response.status_code == 429:
+            return (
+                "Rate limited by Semantic Scholar (HTTP 429). "
+                "This is normal on the free tier — please wait a moment and try again."
+            )
+        raise
 
     if not papers:
         return "No papers found for that query."
@@ -136,7 +145,15 @@ def get_paper_details(paper_id: str) -> str:
     Args:
         paper_id: Identifier for the paper (see formats above).
     """
-    paper = _ss_client.get_paper(paper_id)
+    try:
+        paper = _ss_client.get_paper(paper_id)
+    except httpx.HTTPStatusError as e:
+        if e.response.status_code == 429:
+            return (
+                "Rate limited by Semantic Scholar (HTTP 429). "
+                "This is normal on the free tier — please wait a moment and try again."
+            )
+        raise
     return json.dumps(paper, indent=2)
 
 
@@ -219,7 +236,16 @@ def get_citations(
         limit: Maximum number of results (default 20, max 50).
     """
     limit = min(limit, 50)
-    papers = _ss_client.get_citations(paper_id, direction=direction, limit=limit)
+
+    try:
+        papers = _ss_client.get_citations(paper_id, direction=direction, limit=limit)
+    except httpx.HTTPStatusError as e:
+        if e.response.status_code == 429:
+            return (
+                "Rate limited by Semantic Scholar (HTTP 429). "
+                "This is normal on the free tier — please wait a moment and try again."
+            )
+        raise
 
     if not papers:
         return f"No {direction} found for paper '{paper_id}'."
