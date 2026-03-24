@@ -31,20 +31,20 @@ Your goals:
 
 **macOS / Linux:**
 ```bash
-python -m venv venv
-source venv/bin/activate
+python -m venv agents-workshop
+source agents-workshop/bin/activate
 ```
 
 **Windows (Git Bash):**
 ```bash
-python -m venv venv
-source venv/Scripts/activate
+python -m venv agents-workshop
+source agents-workshop/Scripts/activate
 ```
 
 **Windows (PowerShell):**
 ```powershell
-python -m venv venv
-.\venv\Scripts\Activate.ps1
+python -m venv agents-workshop
+.\agents-workshop\Scripts\Activate.ps1
 ```
 
 > **Note:** Always activate the virtual environment before running any commands
@@ -61,11 +61,6 @@ pip install -r requirements.txt
 ```bash
 python download_papers.py
 ```
-
-> **Windows users:** If you get a `UnicodeEncodeError`, run with:
-> ```bash
-> PYTHONIOENCODING=utf-8 python download_papers.py
-> ```
 
 This downloads ~20 arXiv papers into `pdfs/`. Re-run it if any downloads fail.
 
