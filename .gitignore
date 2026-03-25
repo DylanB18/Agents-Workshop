@@ -211,3 +211,6 @@ __marimo__/
 =======
 __marimo__/
 >>>>>>> 11597d0 (Update to git ignore)
+.DS_Store
+Prompt.txt
+.DS_Store

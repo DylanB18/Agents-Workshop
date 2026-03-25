@@ -1,31 +1,39 @@
-# Assignment: Building and Tuning a Literature Review Agent
+# AI Applications Workshop — Agentic AI Assignment
 
 ## Overview
 
-In this assignment you will build and tune an agentic AI system that conducts
-literature reviews. The system combines two information sources:
+This repository is a **complete reference example** of an agentic AI system that
+conducts literature reviews. It combines two information sources:
 
 - **Semantic Scholar** — a large database of academic paper metadata, searched via API
 - **Local PDF library** — ~20 full-text papers on LLM agents and RAG, searched via
   retrieval-augmented generation (RAG)
 
-The MCP server you configure here runs inside **Claude Code**, giving Claude access
-to these sources as callable tools during a conversation.
+The system runs as an **MCP server** inside Claude Code, giving Claude access to
+these sources as callable tools during a conversation.
 
-Your goals:
-1. Complete the RAG pipeline implementation (by following guided TODOs)
-2. Observe how RAG parameters affect retrieval quality
-3. Observe how system prompt engineering affects review quality
-4. Reflect on the strengths and limitations of this architecture
+**Your assignment is to build something like this yourself** — using Claude Code
+as your primary coding assistant. You may build a literature review agent (following
+the architecture here) or a different agent entirely. Then you will apply it to a
+real problem and critically evaluate whether it works.
 
 ---
 
-## Prerequisites
+## Estimated Time
 
-- **Python 3.10 or later** — check with `python --version`
-- **Claude Code** — installed and authenticated ([installation guide](https://docs.anthropic.com/en/docs/claude-code/overview)). The CLI is recommended for ease of use.
+| Section | Time |
+|---|---|
+| Setup (running this example) | ~30 min |
+| Part 1 — Build your agent | ~2.5–3.5 hrs |
+| Part 2 — Research question / task analysis | ~90 min |
+| Part 3 — Write-up | ~60 min |
+| **Total** | **~5–6 hours** |
 
-## Setup
+---
+
+## Running This Example
+
+Before building your own agent, run this one to understand what you're aiming for.
 
 ### 1. Create and activate a virtual environment
 
@@ -41,14 +49,6 @@ python -m venv agents-workshop
 .\agents-workshop\Scripts\Activate.ps1
 ```
 
-**Windows (Git Bash):**
-```bash
-python -m venv agents-workshop
-source agents-workshop/Scripts/activate
-```
-
-> **Note:** Always activate the virtual environment before running any commands in this project. If you open a new terminal, re-run the `activate` command.
-
 ### 2. Install dependencies
 
 ```bash
@@ -61,252 +61,208 @@ pip install -r requirements.txt
 python download_papers.py
 ```
 
-This downloads ~20 arXiv papers into `pdfs/`. Re-run it if any downloads fail.
-
 ### 4. Build the vector database
 
 ```bash
 python src/pdf_ingestor.py
 ```
 
-This reads all PDFs, chunks the text, computes embeddings, and stores them
-in `chroma_db/`. You will re-run this whenever you change RAG parameters.
-
 ### 5. Register the MCP server with Claude Code
-
-From a terminal, run:
 
 ```bash
 claude mcp add literature-review -- python src/mcp_server.py
 ```
 
-> **VSCode users:** If you are using Claude Code inside VSCode (not the CLI),
-> the `.mcp.json` file included in this repo will configure the server
-> automatically. You can skip the `claude mcp add` command.
->
-> **Important:** The `.mcp.json` uses `"command": "python"`, which must resolve
-> to the virtual environment's Python (i.e., the venv must be activated). If the
-> MCP server fails to start, replace `"python"` in `.mcp.json` with the full
-> path to your venv Python — for example:
-> - **macOS/Linux:** `"command": "./agents-workshop/bin/python"`
-> - **Windows:** `"command": "./agents-workshop/Scripts/python.exe"`
+> **VSCode users:** The `.mcp.json` file in this repo configures the server
+> automatically. Replace `"python"` with the full path to your venv Python if
+> the server fails to start:
+> - macOS/Linux: `"./agents-workshop/bin/python"`
+> - Windows: `"./agents-workshop/Scripts/python.exe"`
 
-### 6. Verify the MCP server is working
+### 6. Verify the server is running
 
-Start a Claude Code session:
-
-```bash
-claude
-```
-
-Then ask Claude:
+Start a Claude Code session and ask:
 
 > "List the tools you have access to."
 
 You should see four tools: `search_papers`, `get_paper_details`,
-`query_local_library`, and `get_citations`. If Claude does not list these
-tools, double-check that you ran `claude mcp add` from the project directory
-and that your virtual environment is activated.
-
-As an additional check, try:
+`query_local_library`, and `get_citations`. Then try:
 
 > "Search Semantic Scholar for 'retrieval augmented generation'."
 
-If the tool call works and returns paper results, your setup is complete.
+If you get paper results, your setup is complete.
 
 ---
 
-## Part 1 — Implement the RAG Pipeline
+## Part 1 — Build Your Agent *(~2.5–3.5 hrs)*
 
-Open `src/rag_pipeline.py`. You will find two functions marked `TODO`.
+Your goal is to build a working agentic system as an MCP server, using Claude
+Code to help you write the code. The two core components are:
 
-### TODO 1: `chunk_text(text, chunk_size, chunk_overlap)`
+1. **A document ingestion pipeline** — reads files (PDFs, text, or whatever fits
+   your domain), chunks them into pieces, embeds them, and stores them in a
+   vector database
+2. **An MCP server** — exposes tools that Claude can call to search that database
+   and any external APIs you choose
 
-Split a string into overlapping character-level chunks. Read the docstring
-carefully (an example is provided elsewhere to help you). This is 
-the same algorithm used during ingestion, so understanding it will help you
-reason about RAG failures later.
+### Option A — Literature review agent
 
-**Hint:** Use a `while` loop with a sliding `start` index. The step between
-chunk starts is `chunk_size - chunk_overlap`.
+Build a version of this system yourself, rather than copying it. Use this repo as
+a reference for what the end result should look like, but write the code from
+scratch with Claude's help.
 
-### TODO 2: `retrieve(query)`
+Key questions to work through with Claude:
+- What does a literature review workflow actually require step by step? Which steps
+  can be automated, and which require human judgment?
+- Why split into four separate tools rather than one? How does tool granularity
+  affect what the agent can do?
+- How should text be chunked for retrieval — by character, sentence, or paragraph?
+  What are the tradeoffs?
+- ChromaDB returns L2 distances. How do you convert a distance to a relevance score?
+  What property of that formula matters?
+- The system prompt is passed as MCP server `instructions`, not as a user message.
+  How does this affect the agent's behavior?
 
-Query ChromaDB for the most relevant chunks and return filtered, formatted
-results. The docstring specifies the exact steps and the ChromaDB API call.
+You do not need to reproduce this system exactly — different design choices are
+fine and worth discussing in your write-up.
 
-**Steps:**
-1. Encode the query with `self.model`
-2. Call `self.collection.query(...)` as shown in the docstring
-3. Convert L2 distances to similarities: `similarity = 1 / (1 + distance)`
-4. Filter by `self.similarity_threshold`
-5. Return sorted results as a list of dicts
+### Option B — Agent of your choice
 
-**Test your implementation** by querying the local library in Claude Code:
+Build a different kind of agent that does something useful for you. Some directions:
 
-> "Search the local library for passages about how ReAct combines reasoning and acting."
+- A codebase assistant that ingests a large repo and answers questions about it
+- A customer support agent that queries a product documentation database
+- A data analysis agent that reads CSV/JSON files and runs queries
+- A legal or policy research agent over a domain-specific document corpus
 
-You should see retrieved chunks with source filenames and similarity scores.
-If you get a `NotImplementedError`, your implementation is not yet complete.
+Requirements for either option:
+- At least one tool that does **local document retrieval** (RAG over files you
+  provide, not just API calls)
+- At least one tool that calls an **external API or service**
+- A **configurable system prompt** with at least two variants that produce
+  observably different agent behavior
+- The server must run successfully in Claude Code and respond to real queries
 
----
+### Working with Claude Code
 
-## Part 2 — Tune RAG Parameters
+This is an AI-assisted implementation assignment — you are expected to use Claude
+heavily. What is not acceptable is asking Claude to write everything in one prompt
+and submitting the result without understanding it. You should be able to explain
+every component of your system.
 
-Open `config.yaml`. The `rag:` section has four tunable parameters:
-
-| Parameter | Default | What it controls |
-|---|---|---|
-| `chunk_size` | 512 | Max characters per chunk |
-| `chunk_overlap` | 64 | Characters shared between adjacent chunks |
-| `top_k` | 5 | Number of chunks retrieved per query |
-| `similarity_threshold` | 0.3 | Min similarity score to include a chunk |
-
-**Procedure:**
-
-Run the following test query in Claude Code for each configuration below:
-
-> "What are the key limitations of RAG systems, and how have recent papers
-> addressed them?"
-
-Use the same query each time and save Claude's full response.
-
-**Configuration A — Baseline (defaults)**
-```yaml
-chunk_size: 512
-chunk_overlap: 64
-top_k: 5
-similarity_threshold: 0.3
-```
-
-**Configuration B — Small chunks, high overlap**
-```yaml
-chunk_size: 256
-chunk_overlap: 128
-top_k: 8
-similarity_threshold: 0.2
-```
-
-> **Important:** After changing any RAG parameter, re-run ingestion before
-> testing:
-> ```bash
-> python src/pdf_ingestor.py
-> ```
-> Then restart Claude Code (or run `claude mcp restart literature-review`) to
-> reload the server.
-
-In your writeup, compare the two outputs. Consider:
-- Did both configurations retrieve the same papers/chunks?
-- Which produced more precise quotes vs. broader context?
-- Did either configuration fail to retrieve relevant information?
-- What did a high vs. low `similarity_threshold` exclude?
-
-**Extra credit — Configuration C: Large chunks, low retrieval count**
-```yaml
-chunk_size: 1024
-chunk_overlap: 64
-top_k: 3
-similarity_threshold: 0.4
-```
-
-Run the same query with this configuration and include it in your comparison.
+Some useful prompts to get started:
+- "I want to build an MCP server in Python using FastMCP. Help me set up the
+  skeleton with one tool."
+- "I need to chunk text from PDFs and store the chunks in ChromaDB with embeddings.
+  Walk me through how to do this step by step."
+- "Here is my retrieve() function. It works, but I want to understand why we need
+  to convert L2 distance to similarity — explain the math."
 
 ---
 
-## Part 3 — Tune the System Prompt
+## Part 2 — Research Question / Task Analysis *(~90 min)*
 
-Open `prompts/templates.py`. The `"default"` prompt is already implemented.
-You will write two more.
+Apply your agent to a real problem and evaluate whether it actually works.
 
-**Step 1:** Run the following request with the `"default"` prompt and save the output:
+### Step 1: Choose a question or task
 
-> "Write a literature review on the evolution of LLM agents, covering ReAct,
-> Reflexion, MetaGPT, and recent surveys."
+If you built a literature review agent, pick a research question you genuinely care
+about — specific enough that a good review would take a few hours to produce manually.
 
-**Step 2:** Set `agent.system_prompt: "concise"` in `config.yaml` and implement
-the `CONCISE_PROMPT` stub in `templates.py`. Restart the MCP server and run
-the same request.
+Examples:
+- "How do LLM agents handle tool failures and error recovery?"
+- "What evaluation benchmarks exist for multi-agent coordination?"
+- "How has RAG system design changed as context windows have grown?"
 
-**Step 3:** Set `agent.system_prompt: "structured"` and implement the
-`STRUCTURED_PROMPT` stub. Restart and run the same request again.
+If you built a different agent, pick an equivalent task that represents real,
+non-trivial use of your system.
 
-**Extra credit:** Implement `CRITICAL_PROMPT` in `templates.py` — a prompt that
-instructs the agent to critically evaluate papers rather than just summarize them
-(flag weak evaluations, limited baselines, or overclaimed results). Test it with
-the same request and include a reflection on whether RAG-based critique is
-realistic.
+### Step 2: Run the full pipeline
 
-> **Restart reminder:** After changing `config.yaml` or `templates.py`, the
-> server must be restarted for changes to take effect:
-> ```bash
-> claude mcp restart literature-review
-> ```
+Work through this sequence in Claude Code and save the outputs at each step:
 
-In your writeup, compare the outputs. Consider:
-- How did the prompt change the structure of the review?
-- Did the prompt affect which tools the agent called, or in what order?
-- Which prompt produced the most useful output, and why?
+1. **External search** — use your API-based tool to find relevant sources
+2. **Identify key results** — ask Claude to identify the 3–5 most central sources
+   and explain why; follow at least one connection between them (citation chain,
+   related document, etc.)
+3. **Local retrieval** — query your vector database for relevant passages; note
+   whether they go beyond what the external search returned
+4. **Synthesize** — ask Claude to produce a final answer (review, analysis, report)
+   integrating both sources, with citations or attribution
+
+A worked example of this workflow is in `examples/research_question_analysis.md`.
+
+### Step 3: Evaluate the output
+
+In your `writeup.md`, add a **"Part 2: Task Analysis"** section addressing:
+
+**Depth beyond surface-level search**
+What did your agent surface that a quick web/API search alone would have missed?
+What did it still miss? Be specific.
+
+**Local retrieval contribution**
+Which passages from your vector database actually made it into the final output?
+Were they more useful than the external API results, or largely redundant? Did any
+retrieved passage change the answer in a meaningful way?
+
+**At least one failure**
+Describe a case where the system misled you or failed: a hallucinated claim, a
+missed key result, an irrelevant retrieved chunk, or a synthesis that sounded
+authoritative but was shallow. Would you trust this system for real work? Under
+what conditions?
 
 ---
 
-## Part 4 — Reflection Write-Up
+## Part 3 — Reflection Write-Up *(~60 min)*
 
-Create a file `writeup.md` in the project folder. Address four of the following
-nine questions concisely:
+Create `writeup.md` in your project folder. Address all of the following:
 
-### 4.1 RAG parameter analysis
-- Which configuration produced the best retrieval results for your test query?
-  What made it better?
-- Describe a case where the similarity threshold excluded a relevant chunk,
-  or included an irrelevant one.
-- What would you change about the chunking strategy if you were building this
-  for production? (Hint: character-level chunking has a known weakness.)
+### 3.1 Build process
+- What were the two or three hardest design decisions you made? How did you arrive
+  at them?
+- What did Claude get right on the first try? Where did you have to push back,
+  correct it, or iterate?
+- Is there a component you understand well because you built it, vs. one you
+  mostly accepted from Claude without fully understanding? Be honest.
 
-### 4.2 Prompt engineering analysis
-- How did changing the system prompt affect tool calling behavior — did the
-  agent call different tools, or in a different order?
-- Which prompt template produced the highest-quality literature review?
-  Define what "quality" means in your answer.
-- Describe one specific failure you observed (e.g., the agent cited a paper
-  incorrectly, missed a relevant paper, or produced an incoherent synthesis).
+### 3.2 System prompt engineering
+- What two prompt variants did you implement? How did they differ in behavior —
+  not just wording, but in which tools the agent called and in what order?
+- Which produced better output, and how are you defining "better"?
 
-### 4.3 Architecture limitations
-- The system can only retrieve from ~20 local papers. How did you observe this
-  limit affecting the output?
-- The Semantic Scholar integration provides metadata only (no full text).
-  How did this affect the agent's ability to synthesize findings?
-- What would you add or change to make this system viable for a real research workflow?
+### 3.3 Task analysis
+- (See Part 2, Step 3 above — include this in the same writeup.)
+
+### 3.4 Architecture limitations
+- What would you need to change to make this viable for a real workflow?
+- What did you learn about the limits of RAG-based agents that you didn't
+  expect before building one?
 
 ---
 
 ## Submission Checklist
 
-- [ ] `src/rag_pipeline.py` — both TODOs implemented
-- [ ] `config.yaml` — shows your final (best) configuration
-- [ ] `prompts/templates.py` — `CONCISE_PROMPT` and `STRUCTURED_PROMPT` implemented
-- [ ] (extra credit) `CRITICAL_PROMPT` implemented and tested
-- [ ] `writeup.md` — all three reflection sections completed
-- [ ] ZIP archive submitted to Canvas
+- [ ] Working MCP server registered in Claude Code
+- [ ] At least one local retrieval tool and one external API tool
+- [ ] At least two system prompt variants implemented and tested
+- [ ] `writeup.md` — all sections completed
 
 ---
 
-## Tips and Common Issues
+## Appendix — How This Example Was Built
 
-**"No results above the similarity threshold"**
-→ Lower `similarity_threshold` in `config.yaml` and re-ingest. Or rephrase
-your query to use vocabulary closer to what appears in the papers.
+This reference system was built iteratively using Claude Code, starting from a
+single prompt:
 
-**Semantic Scholar returns an error**
-→ The free tier is rate-limited. Wait a few seconds and retry. Avoid running
-many searches in rapid succession.
+> "I want to build a literature review agent as an MCP server. It should combine
+> Semantic Scholar for paper discovery with local PDF retrieval using RAG. I want
+> configurable system prompts and tunable retrieval parameters. Help me build this."
 
-**Changes to config.yaml not taking effect**
-→ Restart the MCP server: `claude mcp restart literature-review`
+From there, the architecture was refined over several turns — clarifying tool
+design, choosing sentence-transformers over OpenAI embeddings (to avoid API costs),
+writing the chunking and retrieval logic, and iterating on the prompt templates.
 
-**Changes to RAG params not affecting retrieval**
-→ You must re-run `python src/pdf_ingestor.py` after changing `chunk_size`,
-`chunk_overlap`, or `embedding_model`. The vector database must be rebuilt.
-
-**PDF download failed for one paper**
-→ Re-run `python download_papers.py`. It skips already-downloaded files.
-
+The key lesson: Claude scaffolds the boilerplate quickly. The design decisions —
+what to expose as tools vs. internalize, what chunking strategy fits the use case,
+what failure modes to test — required human judgment throughout. Building is fast;
+understanding what you built takes longer.

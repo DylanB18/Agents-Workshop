@@ -2,10 +2,8 @@
 rag_pipeline.py — RAG retrieval pipeline
 
 This module handles querying the ChromaDB vector database to find relevant
-text chunks from the local PDF library.
-
-Your tasks are marked with TODO comments. Read the surrounding code carefully
-before implementing.
+text chunks from the local PDF library. See chunk_text() and retrieve() for
+the core logic; both are called by the MCP server via query_library().
 """
 
 import pathlib
@@ -53,85 +51,71 @@ class RAGPipeline:
         client = chromadb.PersistentClient(path=db_path)
         self.collection = client.get_collection(collection_name)
 
-    # -----------------------------------------------------------------------
-    # TODO 1 of 2 — implement chunk_text()
-    # -----------------------------------------------------------------------
     @staticmethod
     def chunk_text(text: str, chunk_size: int, chunk_overlap: int) -> list[str]:
         """
         Split *text* into overlapping fixed-size character chunks.
 
-        Requirements:
-          - Each chunk is at most *chunk_size* characters long.
-          - Consecutive chunks overlap by *chunk_overlap* characters.
-          - The step between chunk starts is (chunk_size - chunk_overlap).
-          - The last chunk may be shorter than chunk_size.
-          - If text is empty, return an empty list.
-
-        This is conceptually the same function used during ingestion
-        (see src/pdf_ingestor.py). Implement it here independently so
-        you understand how chunking works.
-
-        Hint: a while-loop over a sliding `start` index is the simplest approach.
-
-        Args:
-            text:          The full document text to split.
-            chunk_size:    Maximum characters per chunk.
-            chunk_overlap: Characters shared between consecutive chunks.
-
-        Returns:
-            List of text chunk strings.
+        Each chunk is at most chunk_size characters. Consecutive chunks overlap
+        by chunk_overlap characters; the step between chunk starts is
+        (chunk_size - chunk_overlap). The last chunk may be shorter.
 
         Example:
             chunk_text("abcdefghij", chunk_size=4, chunk_overlap=1)
-            # step = 4 - 1 = 3
-            # → ["abcd", "defg", "ghij"]
-            # (position 9 still has content, so the trailing stub is included)
+            # step = 3 → ["abcd", "defg", "ghij", "j"]
         """
-        # TODO: implement this function
-        # Remove the line below and write your implementation.
-        raise NotImplementedError("Implement chunk_text() — see docstring above")
+        if not text:
+            return []
 
-    # -----------------------------------------------------------------------
-    # TODO 2 of 2 — implement retrieve()
-    # -----------------------------------------------------------------------
+        chunks = []
+        step = chunk_size - chunk_overlap
+        start = 0
+        while start < len(text):
+            chunks.append(text[start : start + chunk_size])
+            start += step
+        return chunks
+
     def retrieve(self, query: str) -> list[dict]:
         """
         Retrieve the most relevant chunks from the PDF library for *query*.
 
-        Steps you must implement:
-          1. Encode *query* into an embedding vector using self.model.
-          2. Query self.collection for the top self.top_k nearest chunks.
-          3. Convert ChromaDB's L2 distances to cosine-like similarity scores.
-             Use the formula:  similarity = 1 / (1 + distance)
-             (This maps distance=0 → similarity=1.0, and large distances → ~0.)
-          4. Filter out any result whose similarity is below self.similarity_threshold.
-          5. Return a list of result dicts, one per surviving chunk, each with keys:
-               - "text"       : the chunk text (str)
-               - "source"     : the PDF filename (str), from chunk metadata
-               - "chunk_index": the chunk's position in that PDF (int)
-               - "similarity" : the computed similarity score, rounded to 4 decimals (float)
-             Sort results by similarity descending (highest first).
-
-        ChromaDB query API reference:
-            results = self.collection.query(
-                query_embeddings=[query_embedding],   # list of lists
-                n_results=self.top_k,
-                include=["documents", "metadatas", "distances"],
-            )
-            # results["documents"][0]  → list of chunk texts
-            # results["metadatas"][0]  → list of metadata dicts
-            # results["distances"][0]  → list of L2 distances (lower = closer)
-
-        Args:
-            query: The natural-language question or topic to search for.
-
-        Returns:
-            List of result dicts (may be empty if nothing passes the threshold).
+        Steps:
+          1. Encode *query* into an embedding vector.
+          2. Query ChromaDB for the top self.top_k nearest chunks.
+          3. Convert L2 distances to similarity scores: 1 / (1 + distance).
+          4. Filter out results below self.similarity_threshold.
+          5. Return results sorted by similarity descending, each as a dict with
+             keys: text, source, chunk_index, similarity.
         """
-        # TODO: implement this function
-        # Remove the line below and write your implementation.
-        raise NotImplementedError("Implement retrieve() — see docstring above")
+        # Step 1: encode the query
+        query_embedding = self.model.encode(query).tolist()
+
+        # Step 2: query ChromaDB for the top-k nearest chunks
+        results = self.collection.query(
+            query_embeddings=[query_embedding],
+            n_results=self.top_k,
+            include=["documents", "metadatas", "distances"],
+        )
+
+        # Steps 3–4: convert distances to similarities and filter by threshold
+        output = []
+        for text, meta, distance in zip(
+            results["documents"][0],
+            results["metadatas"][0],
+            results["distances"][0],
+        ):
+            similarity = round(1 / (1 + distance), 4)
+            if similarity >= self.similarity_threshold:
+                output.append({
+                    "text": text,
+                    "source": meta["source"],
+                    "chunk_index": meta["chunk_index"],
+                    "similarity": similarity,
+                })
+
+        # Step 5: sort by similarity descending
+        output.sort(key=lambda x: x["similarity"], reverse=True)
+        return output
 
 
 # ---------------------------------------------------------------------------
