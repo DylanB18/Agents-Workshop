@@ -10,6 +10,8 @@
 
 **Research question / task:**
 
+**Address two of the three areas:**
+
 ### Depth beyond surface-level search
 
 What did your agent surface that a quick web/API search alone would have missed?

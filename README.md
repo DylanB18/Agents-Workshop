@@ -2,19 +2,19 @@
 
 ## Overview
 
-This repository is a **complete reference example** of an agentic AI system that
+This repository is a complete reference example of an agentic AI system that
 conducts literature reviews. It combines two information sources:
 
 - **Semantic Scholar** — a large database of academic paper metadata, searched via API.
 - **Local PDF library** — ~20 full-text papers on LLM agents and RAG, searched via
   retrieval-augmented generation (RAG).
 
-The system runs as an **MCP server** inside Claude Code, giving Claude access to
+The system runs as an MCP server inside Claude Code, giving Claude access to
 these sources as callable tools during a conversation.
 
-**Your assignment is to build something like this yourself** — using Claude Code
-as your primary coding assistant. You may build a literature review agent (following
-the architecture here) or a different agent entirely. Then you will apply it to a
+**Your assignment is to build something like this yourself** by using Claude Code
+as your assistant. You may build a literature review agent (following
+the architecture here) or a different agent entirely. Then, you will apply it to a
 real problem and critically evaluate whether it works.
 
 ---
@@ -145,8 +145,7 @@ system at a high level.
 
 ## Part 2 — Research Question / Task Analysis *(~90 min)*
 
-Apply your agent to a real problem and evaluate whether it actually works. You will
-write up your findings in a `writeup.md` file.
+Apply your agent to a real problem and evaluate whether it actually works. You will detail your findings in a `writeup.md` file.
 
 ### Step 1: Choose a question or task
 
@@ -178,7 +177,7 @@ A worked example of this workflow is in `examples/research_question_analysis.md`
 
 ### Step 3: Evaluate the output
 
-In your `writeup.md`, add a **"Part 2: Task Analysis"** section addressing:
+In your `writeup.md`, add a **"Part 2: Task Analysis"** section addressing two of the three topics:
 
 **Depth beyond surface-level search**
 What did your agent surface that a quick web/API search alone would have missed?
@@ -188,7 +187,7 @@ Did it miss anything?
 Which passages from your vector database actually made it into the final output?
 Were they more useful than the external API results, or largely redundant?
 
-**At least one failure**
+**Failures**
 Describe a case where the system misled you or failed: a hallucinated claim, a
 missed key result, an irrelevant retrieved chunk, or a synthesis that sounded
 authoritative but was shallow. Would you trust this system for real work?
@@ -221,11 +220,11 @@ Add a third part to your `writeup.md` file. Address three of the following quest
 - [ ] Working MCP server registered in Claude Code
 - [ ] At least one local retrieval tool and one external API tool
 - [ ] At least two system prompt variants implemented and tested
-- [ ] `writeup.md` — all sections completed
+- [ ] `writeup.md` — all required questions completed
 
 ---
 
-## Appendix — How This Example Was Built
+## How This Example Was Built
 
 This reference system was built iteratively using Claude Code, starting from a
 single prompt:
