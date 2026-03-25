@@ -5,9 +5,9 @@
 This repository is a **complete reference example** of an agentic AI system that
 conducts literature reviews. It combines two information sources:
 
-- **Semantic Scholar** — a large database of academic paper metadata, searched via API
+- **Semantic Scholar** — a large database of academic paper metadata, searched via API.
 - **Local PDF library** — ~20 full-text papers on LLM agents and RAG, searched via
-  retrieval-augmented generation (RAG)
+  retrieval-augmented generation (RAG).
 
 The system runs as an **MCP server** inside Claude Code, giving Claude access to
 these sources as callable tools during a conversation.
@@ -24,10 +24,10 @@ real problem and critically evaluate whether it works.
 | Section | Time |
 |---|---|
 | Setup (running this example) | ~30 min |
-| Part 1 — Build your agent | ~2.5–3.5 hrs |
+| Part 1 — Build your agent | ~2–3.5 hrs |
 | Part 2 — Research question / task analysis | ~90 min |
 | Part 3 — Write-up | ~60 min |
-| **Total** | **~5–6 hours** |
+| **Total** | **~5–6.5 hours** |
 
 ---
 
@@ -94,7 +94,7 @@ If you get paper results, your setup is complete.
 
 ---
 
-## Part 1 — Build Your Agent *(~2.5–3.5 hrs)*
+## Part 1 — Build Your Agent *(~2.0–3.5 hrs)*
 
 Your goal is to build a working agentic system as an MCP server, using Claude
 Code to help you write the code. The two core components are:
@@ -107,9 +107,8 @@ Code to help you write the code. The two core components are:
 
 ### Option A — Literature review agent
 
-Build a version of this system yourself, rather than copying it. Use this repo as
-a reference for what the end result should look like, but write the code from
-scratch with Claude's help.
+Build a version of this system yourself. Use this repo as a reference for what the end
+result should look like, but write the code from scratch with Claude's help.
 
 Key questions to work through with Claude:
 - What does a literature review workflow actually require step by step? Which steps
@@ -117,18 +116,13 @@ Key questions to work through with Claude:
 - Why split into four separate tools rather than one? How does tool granularity
   affect what the agent can do?
 - How should text be chunked for retrieval — by character, sentence, or paragraph?
-  What are the tradeoffs?
-- ChromaDB returns L2 distances. How do you convert a distance to a relevance score?
-  What property of that formula matters?
-- The system prompt is passed as MCP server `instructions`, not as a user message.
-  How does this affect the agent's behavior?
 
 You do not need to reproduce this system exactly — different design choices are
-fine and worth discussing in your write-up.
+encouraged and worth discussing in your write-up.
 
 ### Option B — Agent of your choice
 
-Build a different kind of agent that does something useful for you. Some directions:
+Build a different kind of agent that does something useful for you. Some examples:
 
 - A codebase assistant that ingests a large repo and answers questions about it
 - A customer support agent that queries a product documentation database
@@ -141,40 +135,30 @@ Requirements for either option:
 - At least one tool that calls an **external API or service**
 - A **configurable system prompt** with at least two variants that produce
   observably different agent behavior
-- The server must run successfully in Claude Code and respond to real queries
+- The server must run successfully in Claude Code.
 
-### Working with Claude Code
-
-This is an AI-assisted implementation assignment — you are expected to use Claude
-heavily. What is not acceptable is asking Claude to write everything in one prompt
-and submitting the result without understanding it. You should be able to explain
-every component of your system.
-
-Some useful prompts to get started:
-- "I want to build an MCP server in Python using FastMCP. Help me set up the
-  skeleton with one tool."
-- "I need to chunk text from PDFs and store the chunks in ChromaDB with embeddings.
-  Walk me through how to do this step by step."
-- "Here is my retrieve() function. It works, but I want to understand why we need
-  to convert L2 distance to similarity — explain the math."
+This is an AI-assisted implementation assignment, so you are expected to use Claude
+heavily. That said, you should be able to explain the various components of your 
+system at a high level.
 
 ---
 
 ## Part 2 — Research Question / Task Analysis *(~90 min)*
 
-Apply your agent to a real problem and evaluate whether it actually works.
+Apply your agent to a real problem and evaluate whether it actually works. You will
+write up your findings in a `writeup.md` file.
 
 ### Step 1: Choose a question or task
 
 If you built a literature review agent, pick a research question you genuinely care
-about — specific enough that a good review would take a few hours to produce manually.
+about that is specific enough that a good review would take a few hours to write.
 
 Examples:
 - "How do LLM agents handle tool failures and error recovery?"
 - "What evaluation benchmarks exist for multi-agent coordination?"
 - "How has RAG system design changed as context windows have grown?"
 
-If you built a different agent, pick an equivalent task that represents real,
+If you built a different agent, pick an equivalent task that represents a
 non-trivial use of your system.
 
 ### Step 2: Run the full pipeline
@@ -198,40 +182,32 @@ In your `writeup.md`, add a **"Part 2: Task Analysis"** section addressing:
 
 **Depth beyond surface-level search**
 What did your agent surface that a quick web/API search alone would have missed?
-What did it still miss? Be specific.
+Did it miss anything?
 
 **Local retrieval contribution**
 Which passages from your vector database actually made it into the final output?
-Were they more useful than the external API results, or largely redundant? Did any
-retrieved passage change the answer in a meaningful way?
+Were they more useful than the external API results, or largely redundant?
 
 **At least one failure**
 Describe a case where the system misled you or failed: a hallucinated claim, a
 missed key result, an irrelevant retrieved chunk, or a synthesis that sounded
-authoritative but was shallow. Would you trust this system for real work? Under
-what conditions?
+authoritative but was shallow. Would you trust this system for real work?
 
 ---
 
 ## Part 3 — Reflection Write-Up *(~60 min)*
 
-Create `writeup.md` in your project folder. Address all of the following:
+Add a third part to your `writeup.md` file. Address three of the following questions:
 
 ### 3.1 Build process
-- What were the two or three hardest design decisions you made? How did you arrive
-  at them?
+- What was a major design decision you had to make? How did you decide to take
+  a particular course of action.
 - What did Claude get right on the first try? Where did you have to push back,
   correct it, or iterate?
-- Is there a component you understand well because you built it, vs. one you
-  mostly accepted from Claude without fully understanding? Be honest.
 
 ### 3.2 System prompt engineering
-- What two prompt variants did you implement? How did they differ in behavior —
-  not just wording, but in which tools the agent called and in what order?
-- Which produced better output, and how are you defining "better"?
-
-### 3.3 Task analysis
-- (See Part 2, Step 3 above — include this in the same writeup.)
+- What two prompt variants did you implement? How did they differ in behavior? 
+  Which produced better output, and how are you defining "better"?
 
 ### 3.4 Architecture limitations
 - What would you need to change to make this viable for a real workflow?
@@ -256,13 +232,8 @@ single prompt:
 
 > "I want to build a literature review agent as an MCP server. It should combine
 > Semantic Scholar for paper discovery with local PDF retrieval using RAG. I want
-> configurable system prompts and tunable retrieval parameters. Help me build this."
+> configurable system prompts and tunable retrieval parameters. Ask me questions
+> to clarify this task."
 
-From there, the architecture was refined over several turns — clarifying tool
-design, choosing sentence-transformers over OpenAI embeddings (to avoid API costs),
-writing the chunking and retrieval logic, and iterating on the prompt templates.
-
-The key lesson: Claude scaffolds the boilerplate quickly. The design decisions —
-what to expose as tools vs. internalize, what chunking strategy fits the use case,
-what failure modes to test — required human judgment throughout. Building is fast;
-understanding what you built takes longer.
+From there, the architecture was refined over several subsequent prompts to clarify
+tool design, chunking/retrieval logic, and iterate on the prompt templates.
